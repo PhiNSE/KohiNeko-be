@@ -24,5 +24,18 @@ router.delete(
   authMiddleWare.restrictTo(constant.ADMIN_ROLE, constant.SHOP_MANAGER),
   packageController.deletePackage,
 );
+router.post(
+  '/:packageId/vnPay',
+  authMiddleWare.verifyToken,
+  authMiddleWare.restrictTo(constant.SHOP_MANAGER),
+  packageController.createPaymentUrl,
+);
+
+router.post(
+  '/:packageId/vnPay/return',
+  authMiddleWare.verifyToken,
+  authMiddleWare.restrictTo(constant.SHOP_MANAGER),
+  packageController.vnpay_return,
+);
 
 exports.router = router;

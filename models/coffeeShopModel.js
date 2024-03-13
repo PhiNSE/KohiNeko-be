@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { coffeeShopAddressSchema } = require('./coffeeShopAddressessModel');
+const { ImageSchema } = require('./imageModel');
 
 const coffeeShopSchema = new mongoose.Schema(
   {
@@ -23,26 +24,36 @@ const coffeeShopSchema = new mongoose.Schema(
           closeHour: {
             type: String,
             required: true,
+            //   validate: {
+            //     validator: function (value) {
+            //       const open =
+            //         Number.parseInt(this.openHour.slice(0, 1), 10) +
+            //         Number.parseInt(this.openHour.slice(2, 3), 10) * 0.1;
+            //       const close =
+            //         Number.parseInt(value.slice(0, 1), 10) +
+            //         Number.parseInt(value.slice(2, 3), 10) * 0.1;
+            //       return close > open;
+            //     },
+            //     message: 'closeHour must be greater than openHour',
+            //   },
           },
         },
       ],
       required: true,
     },
     images: {
-      type: [String],
+      type: [ImageSchema],
       required: false,
     },
-    contact: {
-      phone: {
-        type: String,
-        required: true,
-        unique: true,
-      },
-      email: {
-        type: String,
-        required: false,
-        unique: true,
-      },
+    phone: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    email: {
+      type: String,
+      required: false,
+      unique: true,
     },
     description: {
       type: String,
@@ -50,13 +61,23 @@ const coffeeShopSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['available', 'unavailable'],
-      default: 'available',
+      enum: ['available', 'unavailable', 'rejected'],
+      default: 'unavailable',
     },
-    createdAt: {
-      type: Date,
-      default: Date.now(),
-    },
+    // owner: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: 'users',
+    //   required: true,
+    // },
+    // staffs: {
+    //   type: [
+    //     {
+    //       type: mongoose.Schema.Types.ObjectId,
+    //       ref: 'users',
+    //     },
+    //   ],
+    //   required: false,
+    // },
     items: {
       type: [
         {
@@ -71,5 +92,4 @@ const coffeeShopSchema = new mongoose.Schema(
 );
 
 const coffeeShop = mongoose.model('coffee_shops', coffeeShopSchema);
-
 module.exports = coffeeShop;

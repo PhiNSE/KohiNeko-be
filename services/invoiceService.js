@@ -9,3 +9,6 @@ exports.getInvoiceByBookingIds = (bookingIds) =>
 exports.getAllInvoices = () => Invoice.find();
 
 exports.getInvoiceById = (id) => Invoice.findById(id);
+
+exports.updateStatus = (id, status) =>
+  Invoice.findByIdAndUpdate(id, { status: status }, { new: true });

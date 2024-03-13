@@ -7,6 +7,10 @@ const itemTypeSchema = new mongoose.Schema(
       required: [true, 'Item type must have a name'],
       unique: true,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );

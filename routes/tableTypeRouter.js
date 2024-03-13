@@ -5,6 +5,14 @@ const tableTypeController = require('../controllers/tableTypeController');
 
 router.get('/', tableTypeController.getAllTableTypes);
 router.get('/:id', tableTypeController.getTableTypeById);
+router.get(
+  '/coffeeShops/:coffeeShopId/search',
+  tableTypeController.searchTableTypes,
+);
+router.get(
+  '/coffeeShops/:coffeeShopId',
+  tableTypeController.getTableTypeByCoffeeShopId,
+);
 router.post(
   '/',
   authMiddleware.verifyToken,

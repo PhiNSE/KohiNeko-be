@@ -4,6 +4,7 @@ const {
   ref,
   uploadBytes,
   getDownloadURL,
+  deleteObject,
 } = require('firebase/storage');
 const multer = require('multer');
 
@@ -27,6 +28,9 @@ const uploadImage = (file, folder) =>
     } else {
       const fileName = Date.now();
       const storageRef = ref(storage, `${folder}/${fileName}`);
+      if (file.mimetype.includes('image') === false) {
+        reject(new Error('File is not an image'));
+      }
       uploadBytes(storageRef, file.buffer, { contentType: file.mimetype })
         .then(() => {
           console.log('Image uploaded successfully!');
@@ -46,4 +50,15 @@ const upload = multer({
   storage: multer.memoryStorage(),
 });
 
-module.exports = { uploadImage, upload };
+const deleteImage = (url) => {
+  const storageRef = ref(storage, url);
+  deleteObject(storageRef)
+    .then(() => {
+      console.log('Image deleted successfully!');
+    })
+    .catch((error) => {
+      console.error('Error deleting image:', error);
+    });
+};
+
+module.exports = { uploadImage, upload, deleteImage };

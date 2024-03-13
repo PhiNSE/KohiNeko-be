@@ -3,21 +3,32 @@ const catchAsync = require('../utils/catchAsync/catchAsync');
 const ApiResponse = require('../dto/ApiResponse');
 const BookingService = require('../services/bookingService');
 
-// create invoice
+// create invoice and purchased by cash
 exports.createInvoice = catchAsync(async (req, res) => {
-  const invoice = await InvoiceService.createInvoice(req.body);
-  if (invoice) {
-    await BookingService.updateInvoiceBooking(invoice);
+  const { bookingId } = req.params;
+  const invoice = req.body;
+  invoice.staffId = req.user._id;
+  invoice.coffeeShopId = req.user.coffeeShopId;
+  invoice.bookingId = bookingId;
+  invoice.status = 'paid';
+
+  // const booking = await BookingService.getBookingById(bookingId);
+  // console.log(booking);
+  // invoice.userId = booking.customerId;
+  const invoiceResult = await InvoiceService.createInvoice(invoice);
+  if (invoiceResult) {
+    await BookingService.updateInvoiceBooking(invoiceResult);
   }
   res
     .status(201)
-    .send(ApiResponse.success('Create invoice successfully', invoice));
+    .send(ApiResponse.success('Create invoice successfully', invoiceResult));
 });
 
 // get invoice by booking ids
 exports.getInvoiceByBookingIds = catchAsync(async (req, res) => {
+  console.log(req.params.bookingId);
   const invoice = await InvoiceService.getInvoiceByBookingIds(
-    req.params.bookingIds,
+    req.params.bookingId,
   );
   res
     .status(200)
@@ -35,4 +46,22 @@ exports.getInvoiceById = catchAsync(async (req, res) => {
   res
     .status(200)
     .send(ApiResponse.success('Get invoice successfully', invoice));
+});
+
+exports.purchaseInvoices = catchAsync(async (req, res) => {
+  const { bookingId, coffeeShopId } = req.params;
+  const invoice = req.body;
+  console.log(invoice);
+  invoice.userId = req.user._id;
+  invoice.coffeeShopId = coffeeShopId;
+  invoice.bookingId = bookingId;
+  invoice.status = 'paid';
+
+  const invoiceResult = await InvoiceService.createInvoice(invoice);
+  if (invoiceResult) {
+    await BookingService.updateInvoiceBooking(invoiceResult);
+  }
+  res
+    .status(201)
+    .send(ApiResponse.success('Create invoice successfully', invoiceResult));
 });

@@ -7,8 +7,12 @@ const invoiceSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'users',
-      required: [true, 'Invoice must have a user'],
+      ref: 'user',
+    },
+    staffId: {
+      type: Schema.Types.ObjectId,
+      ref: 'user',
+      required: false,
     },
     coffeeShopId: {
       type: Schema.Types.ObjectId,
@@ -26,7 +30,7 @@ const invoiceSchema = new Schema(
     },
     status: {
       type: String,
-      default: 'active',
+      default: 'unpaid',
     },
     isDeleted: {
       type: Boolean,
@@ -37,6 +41,13 @@ const invoiceSchema = new Schema(
   { timestamps: true },
 );
 
+invoiceSchema.pre('save', async function (next) {
+  this.totalPrice = this.invoiceItems.reduce(
+    (acc, cur) => acc + cur.totalPrice,
+    0,
+  );
+  next();
+});
 const Invoice = mongoose.model('invoices', invoiceSchema);
 
 module.exports = Invoice;

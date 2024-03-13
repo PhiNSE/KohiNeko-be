@@ -10,6 +10,17 @@ exports.getAllTableTypes = catchAsync(async (req, res) => {
   );
 });
 
+exports.searchTableTypes = catchAsync(async (req, res) => {
+  const { name, discription } = req.query;
+  const { coffeeShopId } = req.params;
+  const tableTypes = await tabelTypeService.searchTableTypes(
+    coffeeShopId,
+    name,
+    discription,
+  );
+  res.send(new ApiResponse(200, 'Search table types successfully', tableTypes));
+});
+
 exports.getTableTypeById = catchAsync(async (req, res) => {
   const { id } = req.params;
   const tableType = await tabelTypeService.getTableTypeById(id);
@@ -62,6 +73,24 @@ exports.getTableTypeByNumberOfPeople = catchAsync(async (req, res) => {
       new ApiResponse(
         200,
         'Get table type by number of people successfully',
+        tableType,
+      ),
+    );
+  }
+});
+
+exports.getTableTypeByCoffeeShopId = catchAsync(async (req, res) => {
+  const { coffeeShopId } = req.params;
+  const tableType =
+    await tabelTypeService.getTableTypeByCoffeeShopId(coffeeShopId);
+  // console.log(tableType)
+  if (!tableType) {
+    res.status(404).send(new ApiResponse(404, 'Table type not found', null));
+  } else {
+    res.send(
+      new ApiResponse(
+        200,
+        'Get table type by coffee shop id successfully',
         tableType,
       ),
     );

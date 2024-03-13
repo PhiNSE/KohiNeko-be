@@ -4,7 +4,6 @@ const coffeeShopAddressSchema = new mongoose.Schema(
   {
     houseNumber: {
       type: String,
-      unique: true,
       required: [true, 'Coffee shop require house number'],
     },
     street: {
@@ -19,20 +18,20 @@ const coffeeShopAddressSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Coffee shop require district'],
     },
-    postalCode: {
-      type: String,
-      required: [true, 'Coffee shop require postal code'],
-    },
+    // postalCode: {
+    //   type: String,
+    //   required: [true, 'Coffee shop require postal code'],
+    // },
     coordinates: {
       lat: {
         type: Number,
-        unique: true,
-        required: [true, 'Coffee shop require latitude'],
+        // unique: true,
+        // required: [true, 'Coffee shop require latitude'],
       },
       lng: {
         type: Number,
-        unique: true,
-        required: [true, 'Coffee shop require longitude'],
+        // unique: true,
+        // required: [true, 'Coffee shop require longitude'],
       },
     },
   },

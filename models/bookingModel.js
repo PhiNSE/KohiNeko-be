@@ -16,12 +16,11 @@ const bookingSchema = new mongoose.Schema(
     },
     customerId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'users',
-      required: [true, 'Booking must have a customer'],
+      ref: 'user',
     },
     staffId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'users',
+      ref: 'user',
       required: false,
     },
     invoices: [
@@ -45,6 +44,23 @@ const bookingSchema = new mongoose.Schema(
     status: {
       type: String,
       default: 'active',
+    },
+    refundMakerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user',
+      required: false,
+    },
+    refundReason: {
+      type: String,
+      required: false,
+    },
+    refundPercent: {
+      type: Number,
+      required: false,
+    },
+    refundAmount: {
+      type: Number,
+      required: false,
     },
     isDeleted: {
       type: Boolean,

@@ -1,26 +1,22 @@
 const mongoose = require('mongoose');
+const { ImageSchema } = require('./imageModel');
 
 const itemSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       unique: false,
-      validate: {
-        validator: async function (v) {
-          const count = await this.model('items').countDocuments({
-            name: v,
-            coffeeShopId: this.coffeeShopId,
-          });
-          return count === 0;
-        },
-        message: 'Item with this name already exists in the same coffee shop',
-      },
+      // validate: {
+      //   validator: async function (v) {
+      //     const count = await this.model('items').countDocuments({
+      //       name: v,
+      //       coffeeShopId: this.coffeeShopId,
+      //     });
+      //     return count === 0;
+      //   },
+      //   message: 'Item with this name already exists in the same coffee shop',
+      // },
       required: [true, 'Item must have a name'],
-    },
-    coffeeShopId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'coffee_shops',
-      required: [true, 'Item must have a coffee shop'],
     },
     itemTypeId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -35,9 +31,9 @@ const itemSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Item must have a description'],
     },
-    image: {
-      type: [String],
-      required: [true, 'Item must have an image'],
+    images: {
+      type: [ImageSchema],
+      required: false,
     },
     status: {
       type: String,

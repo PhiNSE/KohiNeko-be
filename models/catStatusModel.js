@@ -26,6 +26,7 @@ const catStatusSchema = new Schema(
     },
     endTime: {
       type: Date,
+      default: null,
     },
     isDeleted: {
       type: Boolean,

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { ImageSchema } = require('./imageModel');
 
 const catSchema = new mongoose.Schema(
   {
@@ -12,10 +13,26 @@ const catSchema = new mongoose.Schema(
       ref: 'coffee_shops',
       required: [true, 'cat required a coffeeShop'],
     },
-    areaCats: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'area_cats',
+    areaCats: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'area_cats',
+      },
+    ],
+    status: {
+      type: String,
+      default: 'active',
+      enum: {
+        values: ['active', 'inactive', 'sleeping', 'sick'],
+        message: 'Status is either: active, inactive, sleeping, sick',
+      },
     },
+    // catStatus: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'cat_statuses',
+    //   },
+    // ],
     name: {
       type: String,
       required: [true, 'cat required a name'],
@@ -23,6 +40,16 @@ const catSchema = new mongoose.Schema(
     dateOfBirth: {
       type: Date,
       required: [true, 'cat required a dateOfBirth'],
+      validate: {
+        validator: function (value) {
+          return value < new Date();
+        },
+        message: 'Date of birth must be in the past',
+      },
+    },
+    gender: {
+      type: String,
+      default: 'unknown',
     },
     breed: {
       type: String,
@@ -35,7 +62,8 @@ const catSchema = new mongoose.Schema(
       type: String,
     },
     images: {
-      type: [String],
+      type: [ImageSchema],
+      required: false,
     },
     isDeleted: {
       type: Boolean,

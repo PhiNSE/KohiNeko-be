@@ -39,7 +39,7 @@ exports.deleteTable = catchAsync(async (req, res, next) => {
   if (!table) {
     return next(new AppError('No table found with that ID', 404));
   }
-  res.status(204).json(new ApiResonse(204, 'success', null));
+  res.status(200).json(new ApiResonse(200, 'success', table));
 });
 
 // get all tables by table type id
@@ -52,3 +52,24 @@ exports.getAllTableByTableTypeAndByAreaId = catchAsync(
     res.status(200).json(new ApiResonse(200, 'success', tables));
   },
 );
+
+// create table by area and table type
+exports.adjustTableByAreaAndTableType = catchAsync(async (req, res, next) => {
+  const { quantity } = req.body;
+
+  const table = await tableService.createTableByAreaAndTableType(
+    req.params.areaId,
+    req.params.tableTypeId,
+    quantity,
+  );
+  if (!table) {
+    return next(new AppError('No table found with that ID', 404));
+  }
+  res.status(201).json(new ApiResonse(201, 'success', table));
+});
+
+// get all tables by area id
+exports.getAllTableByAreaId = catchAsync(async (req, res, next) => {
+  const tables = await tableService.getAllTableByAreaId(req.params.areaId);
+  res.status(200).json(new ApiResonse(200, 'success', tables));
+});

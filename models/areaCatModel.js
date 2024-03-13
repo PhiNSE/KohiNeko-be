@@ -38,3 +38,4 @@ const areaCatSchema = new Schema(
 const areaCatModel = Mongoose.model('area_cats', areaCatSchema);
 
 exports.areaCatModel = areaCatModel;
+exports.areaCatSchema = areaCatSchema;

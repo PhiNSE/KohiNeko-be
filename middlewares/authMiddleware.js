@@ -4,6 +4,7 @@ const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync/catchAsync');
 const tokenBlacklist = require('../models/tokenBlackListModel');
 const AppError = require('../utils/appError');
+const Constants = require('../utils/constant');
 
 dotenv.config({ path: './config.env' });
 
@@ -24,15 +25,24 @@ dotenv.config({ path: './config.env' });
 // };
 
 exports.verifyToken = catchAsync(async (req, res, next) => {
-  const token = req.cookies.jwt; // Get token from cookies
+  let token = req.headers.authorization; // Get token from cookies
   if (!token) return next(new AppError('Please login to get access', 401));
+  token = token.replace('Bearer ', '');
   const isBlacklisted = await tokenBlacklist.find({ token });
-  if (!isBlacklisted) {
+  if (isBlacklisted.length > 0 && isBlacklisted[0]) {
     return next(
       new AppError('This token has been blacklisted. Please login again.', 401),
     );
   }
-  const decoded = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  let decoded;
+  try {
+    decoded = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  } catch (err) {
+    if (err instanceof jwt.TokenExpiredError) {
+      return next(new AppError('Token expired, please login again', 401));
+    }
+    throw err;
+  }
   const freshUser = await User.findById(decoded.userId);
   if (!freshUser) {
     return next(new AppError('User not found', 404));
@@ -69,3 +79,14 @@ exports.checkUserPermission = (req, res, next) => {
   }
   next();
 };
+
+exports.isShopOwner = catchAsync(async (req, res, next) => {
+  if (req.user.role === Constants.ADMIN_ROLE) return next();
+  if (!req.params.id) {
+    return next(new AppError('Invalid request', 400));
+  }
+  if (!req.user.coffeeShopId.equals(req.params.id)) {
+    return next(new AppError('You are not owner of this coffee shop', 403));
+  }
+  next();
+});

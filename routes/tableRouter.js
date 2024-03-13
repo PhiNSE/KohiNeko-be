@@ -24,4 +24,13 @@ router.delete(
   tableController.deleteTable,
 );
 
+router.post(
+  '/areas/:areaId/tableType/:tableTypeId',
+  authMiddleware.verifyToken,
+  authMiddleware.restrictTo(constant.ADMIN_ROLE, constant.SHOP_MANAGER),
+  tableController.adjustTableByAreaAndTableType,
+);
+
+router.get('/areas/:areaId', tableController.getAllTableByAreaId);
+
 exports.router = router;

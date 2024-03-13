@@ -27,6 +27,7 @@ exports.getItemTypeById = catchAsync(async (req, res, next) => {
 
 exports.deleteItemType = catchAsync(async (req, res, next) => {
   const itemType = await itemTypeService.deleteItemTypeById(req.params.id);
+  console.log(itemType);
   res
     .status(200)
     .send(ApiResponse.success('Delete item type successfully', itemType));

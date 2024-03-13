@@ -1,16 +1,34 @@
 const ApiResponse = require('../dto/ApiResponse');
 const catService = require('../services/catService');
 const catchAsync = require('../utils/catchAsync/catchAsync');
-const { uploadImage, upload } = require('../utils/firebaseDB');
+const { upload } = require('../utils/firebaseDB');
 
 exports.getAllCats = catchAsync(async (req, res) => {
   const cats = await catService.getAllCats();
   res.send(ApiResponse.success('Get all cats successfully', cats));
 });
 
+exports.getAllCatsByCoffeeShopId = catchAsync(async (req, res) => {
+  const coffeeShopId = req.params.id;
+  let { page, perPage } = req.query;
+  const { key, sort } = req.query;
+  if (page === undefined) page = 1;
+  if (perPage === undefined) perPage = 10;
+  const cats = await catService.getAllCatsByCoffeeShopId(
+    coffeeShopId,
+    page,
+    perPage,
+    key,
+    sort,
+  );
+  res.send(
+    new ApiResponse(200, 'Get all cats by coffee shop id successfully', cats),
+  );
+});
+
 exports.getCatById = catchAsync(async (req, res) => {
-  const { id } = req.params;
-  const cat = await catService.getCatById(id);
+  const { catId } = req.params;
+  const cat = await catService.getCatById(catId);
   if (!cat) {
     res.status(404).send(new ApiResponse(404, 'Cat not found', null));
   } else {
@@ -18,11 +36,26 @@ exports.getCatById = catchAsync(async (req, res) => {
   }
 });
 
+exports.getCatByAreaId = catchAsync(async (req, res) => {
+  const coffeeShopId = req.params.id;
+  const { areaId } = req.params;
+  const cats = await catService.getCatByAreaId(coffeeShopId, areaId);
+  res.send(new ApiResponse(200, 'Get cat by area id successfully', cats));
+});
+
 exports.searchCat = catchAsync(async (req, res) => {
-  const { keyword } = req.query;
-  console.log('keyword', keyword);
-  const cats = await catService.searchCat(keyword);
-  res.send(res.send(new ApiResponse(200, 'Search cats successfully', cats)));
+  const coffeeShopId = req.params.id;
+  const { name, origin, description, favorite, areaId, status } = req.query;
+  const cats = await catService.searchCat(
+    name,
+    origin,
+    description,
+    favorite,
+    coffeeShopId,
+    areaId,
+    status,
+  );
+  res.send(new ApiResponse(200, 'Search cats successfully', cats));
 });
 
 exports.createCat = catchAsync(async (req, res) => {
@@ -31,8 +64,8 @@ exports.createCat = catchAsync(async (req, res) => {
 });
 
 exports.updateCat = catchAsync(async (req, res) => {
-  const { id } = req.params;
-  const updatedCat = await catService.updateCat(id, req.body);
+  const { catId } = req.params;
+  const updatedCat = await catService.updateCat(catId, req.body);
   if (!updatedCat) {
     res.status(404).send(new ApiResponse(404, 'Cat not found', null));
   } else {
@@ -41,8 +74,8 @@ exports.updateCat = catchAsync(async (req, res) => {
 });
 
 exports.deleteCat = catchAsync(async (req, res) => {
-  const { id } = req.params;
-  const deletedCat = await catService.deleteCat(id);
+  const { catId } = req.params;
+  const deletedCat = await catService.deleteCat(catId);
   if (!deletedCat) {
     res.status(404).send(new ApiResponse(404, 'Cat not found', null));
   } else {
@@ -50,25 +83,25 @@ exports.deleteCat = catchAsync(async (req, res) => {
   }
 });
 
-exports.addImage = [
-  upload.single('image'),
+exports.addImages = [
+  upload.fields([{ name: 'images' }]),
   catchAsync(async (req, res) => {
-    const { id } = req.params;
-    const image = req.file;
-    const folder = 'cats';
+    const { catId } = req.params;
+    const images = req.files;
 
-    if (!image) {
-      res.status(400).send(new ApiResponse(400, 'Image is required', null));
-      return;
+    if (!images || !images.images) {
+      return res
+        .status(400)
+        .send(new ApiResponse(400, 'Images is required', null));
     }
 
-    const imageURL = await uploadImage(image, folder);
-    if (!imageURL) {
-      res.status(500).send(new ApiResponse(500, 'Upload image failed', null));
-      return;
-    }
-
-    const updatedCat = await catService.addImage(id, imageURL);
+    const updatedCat = await catService.addImages(catId, images.images);
     res.send(new ApiResponse(200, 'Upload image successfully', updatedCat));
   }),
 ];
+
+exports.deleteImage = catchAsync(async (req, res) => {
+  const { catId, imageId } = req.params;
+  const updatedCat = await catService.deleteImage(catId, imageId);
+  res.send(new ApiResponse(200, 'Delete image successfully', updatedCat));
+});
